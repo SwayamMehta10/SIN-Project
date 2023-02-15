@@ -1,0 +1,64 @@
+```{r}
+library(plyr)
+library(xlsx)
+```
+```{r}
+election_day<-read.xlsx("election-day-cleaned.xlsx",1)
+election_filter6<-read.xlsx("election-filter6-cleaned.xlsx",1)
+first_debate<-read.xlsx("first-debate-cleaned.xlsx",1)
+second_debate<-read.xlsx("second-debate-cleaned.xlsx",1)
+third_debate<-read.xlsx("third-debate-cleaned.xlsx",1)
+vp_debate<-read.xlsx("vp-debate-cleaned.xlsx",1)
+```
+
+```{r}
+all_tweets<-rbind(election_day, election_filter6, first_debate, second_debate, third_debate, vp_debate)
+```
+```{r}
+TrumpTweets<-data.frame()
+HillaryTweets<-data.frame()
+TrumpAndHillaryTweets<-data.frame()
+neitherDirectlyMentioned<-data.frame()
+```
+```{r}
+j=1
+k=1
+m=1
+n=1
+
+for(i in 1:nrow(all_tweets)){
+  if(grepl("trump",tolower(all_tweets[i,2])) && grepl("clinton",tolower(all_tweets[i,2])) ||
+     grepl("trump",tolower(all_tweets[i,2])) && grepl("hillary",tolower(all_tweets[i,2])) ||
+     grepl("donald",tolower(all_tweets[i,2])) && grepl("clinton",tolower(all_tweets[i,2])) ||
+     grepl("trump",tolower(all_tweets[i,2])) && grepl("hillary",tolower(all_tweets[i,2]))){
+    TrumpAndHillaryTweets[j,1]<-all_tweets[i,1]
+    TrumpAndHillaryTweets[j,2]<-all_tweets[i,2]
+    j<-j+1
+  }
+  else if(grepl("trump",tolower(all_tweets[i,2])) || 
+          grepl("donald",tolower(all_tweets[i,2]))){
+    TrumpTweets[k,1]<-all_tweets[i,1]
+    TrumpTweets[k,2]<-all_tweets[i,2]
+    k<-k+1
+  }
+  else if(grepl("clinton",tolower(all_tweets[i,2])) || 
+          grepl("hillary",tolower(all_tweets[i,2]))){
+    HillaryTweets[m,1]<-all_tweets[i,1]
+    HillaryTweets[m,2]<-all_tweets[i,2]
+    m<-m+1
+  }
+  else{
+    neitherDirectlyMentioned[n,1]<-all_tweets[i,1]
+    neitherDirectlyMentioned[n,2]<-all_tweets[i,2]
+    n<-n+1
+  }
+}
+```
+```{r}
+names<-c("Location","Text")
+
+write.xlsx(TrumpAndHillaryTweets,"trump-and-hillary.xlsx",row.names = FALSE)
+write.xlsx(TrumpTweets,"trump.xlsx",row.names = FALSE)
+write.xlsx(HillaryTweets,"hillary.xlsx",row.names = FALSE)
+write.xlsx(neitherDirectlyMentioned,"neither-mentioned.xlsx",row.names = FALSE)
+```
